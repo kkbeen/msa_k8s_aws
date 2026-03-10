@@ -1,0 +1,66 @@
+
+# localhost 버전
+
+server:
+
+  # eureka server 의해서 임의 포트가 할당(spring server)
+  port: 0
+  
+spring:
+
+  application:
+    # api gateway
+    # http://server.xxxxx.shop/
+    # url pattern
+    # http://server.xxxxx/shop/product-service/
+    # http://server.xxxxx/shop/product-service/product/create
+    name: product-service
+
+  # mariadb settings
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://localhost:3306/inspire  
+    username: root
+    password: kk392766
+  
+  jpa:
+    hibernate: 
+      # create, create-drop, update, none
+      ddl-auto:  create
+      # 콘솔출력
+    show-sql: true     
+    properties:
+      hibernate:
+        # h2
+        # dialect: org.hibernate.dialect.H2Dialect
+        # mariadb
+        dialect: org.hibernate.dialect.MariaDBDialect
+        format_sql: true 
+  
+  # redis
+  # docker run -d --name redis-container -p 6379:6379 redis:7.2
+  # docker exec -it redis-container redis-cli 
+  # ping
+  # docker run -d --name redis-insight -p 8001:5540 redis/redisinsight:latest
+  # http://localhost:8001
+  # Host: redis 또는 host.docker.internal , port: 6379
+
+  # data:
+  #   redis:
+  #     host: localhost
+  #     port: 6379
+  #     password: 
+  #     timeout: 6000ms
+
+  kafka:
+    kafka-server: localhost:9092
+    consumer:
+      group-id: product-groups
+      auto-offset-reset: earliest
+
+
+# eureka client user service -> eureka server
+eureka:
+    client:
+        service-url:
+            defaultZone: http://localhost:8761/eureka/
