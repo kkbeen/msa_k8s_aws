@@ -1,9 +1,12 @@
-server:
-  port: 8888
+
+# eks 배포시 apigateway 는 eureka server 등록하지 않겠다는 의미
+eureka:
+  client:
+    enabled: false
 
 spring:
   application:
-    name: apigateway
+    name: api-gateway
 
   cloud:
     gateway:
@@ -29,28 +32,31 @@ spring:
                 # browser : http://server.xxxxx.shop/user-service/users/signIn
                 # inner : http://server.xxxxx.shop/users/signIn
                 - StripPrefix=1
-              uri: lb://user-service
+              # lb - localhost, http - k8s pod
+              uri: http://user-service
 
             - id: product-service
               predicates:
                 - Path=/product-service/**
               filters:
                 - StripPrefix=1
-              uri: lb://product-service
+              uri: http://product-service
             
             - id: order-service
               predicates:
                 - Path=/order-service/**
               filters:
                 - StripPrefix=1
-              uri: lb://order-service
+              uri: http://order-service
 
 jwt:
   secret: jslim-super-secret-key-for-jwt-123456789
 
 
 # eureka client user service -> eureka server
-eureka:
-    client:
-        service-url:
-            defaultZone: http://localhost:8761/eureka/
+
+# ? aws 에서는 eureka server -> service 로 대신하기 때문에
+# eureka:
+#     client:
+#         service-url:
+#             defaultZone: http://localhost:8761/eureka/

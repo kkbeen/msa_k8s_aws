@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.deser.std.StringDeserializer;
 @Configuration
 public class KafkaConsumerConfig {
     
-    @Value("${spring.kafka.kafka-server}")
+    @Value("${spring.kafka.kafka-server:kafka-service:9092}")
     private String kafkaServer ;
     @Value("${spring.kafka.consumer.group-id}")
     private String groupId ;
