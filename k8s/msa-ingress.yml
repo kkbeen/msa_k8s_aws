@@ -1,0 +1,30 @@
+# aws nlb -> ingress controller(pod) -> ingress -> service -> pod
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: order-ingress
+  namespace: lgcns
+  annotations:
+    # kubernetes.io/ingress.class: nginx
+    # nginx.ingress.kubernetes.io/rewrite-target: /$1
+
+spec:
+  ingressClassName: nginx
+  rules:
+    # 레코드로 등록한 도메인 이름
+    - host: server.gyubsinspire.shop
+      http:
+        paths:
+          # http://server.gyubsinspire.shop/
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              # routing 위해서 apigateway를 찾고 해당 서비스에서 실제 라우팅이 발생
+              # http://server.gyubsinspire.shop/user-service
+              # http://server.gyubsinspire.shop/product-service
+              # http://server.gyubsinspire.shop/order-service
+              name: apigateway-service
+              port:
+                number: 80
