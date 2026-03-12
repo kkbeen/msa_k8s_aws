@@ -47,3 +47,14 @@ jobs:
           kubectl apply -f ./k8s/msa-zookeeper.yml
           kubectl apply -f ./k8s/msa-kafka.yml
           kubectl apply -f ./k8s/msa-redis.yml
+
+    #   # image 생성하고 ecr push까지 자동화
+    #   # apigtaeway, user, product, order
+    #   - name: image build and push docker image to ecr
+    #     env:
+    #         REGISTRY: 512138915880.dkr.ecr.us-east-2.amazonaws.com
+    #         REPOSITORY: order-gyubs-backend
+    #         IMAGE_TAG: latest
+    #     run: |
+    #         docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -f Dockerfile .
+    #         docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
