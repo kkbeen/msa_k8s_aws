@@ -56,7 +56,7 @@ jobs:
             REPOSITORY: apigateway
             IMAGE_TAG: latest
         run: |
-            docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -f ./apigateway/Dockerfile .
+            docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -f ./apigateway/Dockerfile ./apigateway
             docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
       - name: eks kubectl apigateway apply
