@@ -1,0 +1,105 @@
+name: msa eks pod deploy
+
+on:
+  push:
+    branches:
+      - main 
+
+
+jobs:
+  
+  # job name
+  build-and-deploy:
+    
+    # runner
+    runs-on: ubuntu-latest
+
+    # https://docs.github.com/ko/actions
+    steps:
+      - name: checkout github
+        uses: actions/checkout@v2
+
+      # 리눅스 환경에서 kubectl client 설치
+      - name: install kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+            version: "v1.34.1"
+
+      # aws 인증
+      - name: aws configure
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+            aws-access-key-id: ${{ secrets.AWS_KEY }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET }}
+            aws-region: us-east-2
+    
+       # EKS 클러스터 연결
+      - name: aws eks cluster update
+        run: aws eks update-kubeconfig --region us-east-2 --name lgcns-gyubs-cluster
+
+      - name: aws ecr login
+        uses: aws-actions/amazon-ecr-login@v1
+
+      # image 생성하고 ecr push까지 자동화
+      # apigtaeway
+      - name: image build and push docker image to ecr
+        env:
+            REGISTRY: 512138915880.dkr.ecr.us-east-2.amazonaws.com
+            REPOSITORY: apigateway
+            IMAGE_TAG: latest
+        run: |
+            docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -f ./apigateway/Dockerfile ./apigateway
+            docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+
+      - name: eks kubectl apigateway apply
+        run: |
+            kubectl apply -f ./apigateway/k8s/apigateway-depl.yml
+            kubectl rollout restart deployment apigateway-deployment -n lgcns
+
+      # image 생성하고 ecr push까지 자동화
+      # user
+      - name: image build and push docker image to ecr
+        env:
+            REGISTRY: 512138915880.dkr.ecr.us-east-2.amazonaws.com
+            REPOSITORY: user-service
+            IMAGE_TAG: latest
+        run: |
+            docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -f ./user/Dockerfile ./user
+            docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+
+      - name: eks kubectl user apply
+        run: |
+            kubectl apply -f ./user/k8s/user-depl.yml
+            kubectl rollout restart deployment user-deployment -n lgcns
+     
+      # image 생성하고 ecr push까지 자동화
+      # product
+      - name: image build and push docker image to ecr
+        env:
+            REGISTRY: 512138915880.dkr.ecr.us-east-2.amazonaws.com
+            REPOSITORY: product-service
+            IMAGE_TAG: latest
+        run: |
+            docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -f ./product/Dockerfile ./product
+            docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+
+      - name: eks kubectl product apply
+        run: |
+            kubectl apply -f ./product/k8s/product-depl.yml
+            kubectl rollout restart deployment product-deployment -n lgcns
+
+      # image 생성하고 ecr push까지 자동화
+      # order
+      - name: image build and push docker image to ecr
+        env:
+            REGISTRY: 512138915880.dkr.ecr.us-east-2.amazonaws.com
+            REPOSITORY: order-service
+            IMAGE_TAG: latest
+        run: |
+            docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -f ./order/Dockerfile ./order
+            docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+
+      - name: eks kubectl order apply
+        run: |
+            kubectl apply -f ./order/k8s/order-depl.yml
+            kubectl rollout restart deployment order-deployment -n lgcns

@@ -1,0 +1,69 @@
+name: msa eks infra deploy
+
+on:
+
+  workflow_dispatch
+
+
+jobs:
+  
+  # job name
+  build-and-deploy:
+    
+    # runner
+    runs-on: ubuntu-latest
+
+    # https://docs.github.com/ko/actions
+    steps:
+      - name: checkout github
+        uses: actions/checkout@v2
+
+      # 리눅스 환경에서 kubectl client 설치
+      - name: install kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+            version: "v1.34.1"
+
+      # aws 인증
+      - name: aws configure
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+            aws-access-key-id: ${{ secrets.AWS_KEY }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET }}
+            aws-region: us-east-2
+    
+       # EKS 클러스터 연결
+      - name: aws eks cluster update
+        run: aws eks update-kubeconfig --region us-east-2 --name lgcns-gyubs-cluster
+
+      - name: aws ecr login
+        uses: aws-actions/amazon-ecr-login@v1
+
+      # Ingress Controller 적용
+      - name: deploy ingress
+        run: |
+          kubectl apply -f ./k8s/msa-ingress.yml
+
+      # Zookeeper 배포
+      - name: deploy zookeeper
+        run: |
+          kubectl apply -f ./k8s/msa-zookeeper.yml
+
+      # Kafka 배포
+      - name: deploy kafka
+        run: |
+          kubectl apply -f ./k8s/msa-kafka.yml
+
+      # Redis 배포
+      - name: deploy redis
+        run: |
+          kubectl apply -f ./k8s/msa-redis.yml
+
+      # 배포 확인
+      - name: check pods
+        run: |
+          kubectl get pods -n lgcns
+
+      - name: check services
+        run: |
+          kubectl get svc -n lgcns
