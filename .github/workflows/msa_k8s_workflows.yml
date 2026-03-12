@@ -61,3 +61,5 @@ jobs:
 
       - name: eks kubectl apigateway apply
         run: |
+            kubectl apply -f ./apigateway/k8s/apigateway-depl.yml
+            kubectl rollout restart deployment apigateway-deployment -n lgcns
