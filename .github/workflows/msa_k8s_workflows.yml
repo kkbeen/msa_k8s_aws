@@ -63,3 +63,19 @@ jobs:
         run: |
             kubectl apply -f ./apigateway/k8s/apigateway-depl.yml
             kubectl rollout restart deployment apigateway-deployment -n lgcns
+
+      # image 생성하고 ecr push까지 자동화
+      # apigtaeway, user, product, order
+      - name: image build and push docker image to ecr
+        env:
+            REGISTRY: 512138915880.dkr.ecr.us-east-2.amazonaws.com
+            REPOSITORY: user-service
+            IMAGE_TAG: latest
+        run: |
+            docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -f ./user/Dockerfile ./user
+            docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+
+      - name: eks kubectl user apply
+        run: |
+            kubectl apply -f ./user/k8s/user-depl.yml
+            kubectl rollout restart deployment user-deployment -n lgcns
