@@ -35,7 +35,7 @@ jobs:
     
        # EKS 클러스터 연결
       - name: aws eks cluster update
-        run: aws eks update-kubeconfig --region ap-northeast-2 --name lgcns-gyubs-cluster
+        run: aws eks update-kubeconfig --region us-east-2 --name lgcns-gyubs-cluster
 
       - name: aws ecr login
         uses: aws-actions/amazon-ecr-login@v1
