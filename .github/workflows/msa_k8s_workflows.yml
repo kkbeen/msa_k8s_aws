@@ -49,7 +49,7 @@ jobs:
           kubectl apply -f ./k8s/msa-redis.yml
 
       # image 생성하고 ecr push까지 자동화
-      # apigtaeway, user, product, order
+      # apigtaeway
       - name: image build and push docker image to ecr
         env:
             REGISTRY: 512138915880.dkr.ecr.us-east-2.amazonaws.com
@@ -65,7 +65,7 @@ jobs:
             kubectl rollout restart deployment apigateway-deployment -n lgcns
 
       # image 생성하고 ecr push까지 자동화
-      # apigtaeway, user, product, order
+      # user
       - name: image build and push docker image to ecr
         env:
             REGISTRY: 512138915880.dkr.ecr.us-east-2.amazonaws.com
@@ -79,3 +79,35 @@ jobs:
         run: |
             kubectl apply -f ./user/k8s/user-depl.yml
             kubectl rollout restart deployment user-deployment -n lgcns
+     
+      # image 생성하고 ecr push까지 자동화
+      # product
+      - name: image build and push docker image to ecr
+        env:
+            REGISTRY: 512138915880.dkr.ecr.us-east-2.amazonaws.com
+            REPOSITORY: product-service
+            IMAGE_TAG: latest
+        run: |
+            docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -f ./product/Dockerfile ./product
+            docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+
+      - name: eks kubectl product apply
+        run: |
+            kubectl apply -f ./product/k8s/product-depl.yml
+            kubectl rollout restart deployment product-deployment -n lgcns
+
+      # image 생성하고 ecr push까지 자동화
+      # order
+      - name: image build and push docker image to ecr
+        env:
+            REGISTRY: 512138915880.dkr.ecr.us-east-2.amazonaws.com
+            REPOSITORY: order-service
+            IMAGE_TAG: latest
+        run: |
+            docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -f ./order/Dockerfile ./order
+            docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+
+      - name: eks kubectl order apply
+        run: |
+            kubectl apply -f ./order/k8s/order-depl.yml
+            kubectl rollout restart deployment order-deployment -n lgcns
