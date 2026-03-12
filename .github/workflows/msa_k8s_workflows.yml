@@ -43,7 +43,7 @@ jobs:
       # infra 구축(ingress, kafka, redis, zookeeper, rabbitMQ)
       - name: deploy infra
         run: |
-          kubectl apply -f ./k8s/msa-ingress.yaml
-          kubectl apply -f ./k8s/msa-zookeeper.yaml
-          kubectl apply -f ./k8s/msa-kafka.yaml
-          kubectl apply -f ./k8s/msa-redis.yaml
+          kubectl apply -f ./k8s/msa-ingress.yml
+          kubectl apply -f ./k8s/msa-zookeeper.yml
+          kubectl apply -f ./k8s/msa-kafka.yml
+          kubectl apply -f ./k8s/msa-redis.yml
